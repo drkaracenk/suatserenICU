@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KDIGO Böbrek Hasarı Evreleme</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; display: flex; justify-content: center; }
+        .container { max-width: 500px; margin-right: 20px; }
+        .table-container { max-width: 400px; border: 1px solid #ddd; padding: 10px; background: #f9f9f9; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+        th { background-color: #f2f2f2; }
+        label, input, button { display: block; margin-top: 10px; }
+        #result { margin-top: 20px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>KDIGO Böbrek Hasarı Evreleme</h2>
+        
+        <label for="baseline_creatinine">Bazal Serum Kreatinin (mg/dL):</label>
+        <input type="number" id="baseline_creatinine" step="0.01" required>
+        
+        <label for="current_creatinine">Güncel Serum Kreatinin (mg/dL):</label>
+        <input type="number" id="current_creatinine" step="0.01" required>
+        
+        <label for="creatinine_change_48h">Son 48 Saatte Kreatinin Artışı (mg/dL):</label>
+        <input type="number" id="creatinine_change_48h" step="0.01" required>
+        
+        <label for="weight">Hasta Ağırlığı (kg):</label>
+        <input type="number" id="weight" step="0.1" required>
+        
+        <label for="urine_output">Toplam İdrar Çıkışı (mL):</label>
+        <input type="number" id="urine_output" step="1" required>
+        
+        <label for="duration">İdrar Çıkışı Süresi (saat):</label>
+        <input type="number" id="duration" step="1" required>
+        
+        <button onclick="evaluateStage()">Evreyi Belirle</button>
+        
+        <div id="result"></div>
+    </div>
+
+    <div class="table-container">
+        <h3>KDIGO Evreleme Kriterleri</h3>
+        <table>
+            <tr>
+                <th>Evre</th>
+                <th>Serum Kreatinin Değişimi</th>
+                <th>İdrar Çıkışı</th>
+            </tr>
+            <tr>
+                <td>Evre 1</td>
+                <td>1.5-1.9 kat artış veya ≥ 0.3 mg/dL artış</td>
+                <td>≤ 0.5 mL/kg/saat (≥ 6 saat)</td>
+            </tr>
+            <tr>
+                <td>Evre 2</td>
+                <td>2.0-2.9 kat artış</td>
+                <td>≤ 0.5 mL/kg/saat (≥ 12 saat)</td>
+            </tr>
+            <tr>
+                <td>Evre 3</td>
+                <td>≥ 3.0 kat artış veya ≥ 4.0 mg/dL veya RRT ihtiyacı</td>
+                <td>≤ 0.3 mL/kg/saat (≥ 24 saat) veya Anüri (≥ 12 saat)</td>
+            </tr>
+        </table>
+    </div>
+
+    <script>
+        function evaluateStage() {
+            let baselineCreatinine = parseFloat(document.getElementById('baseline_creatinine').value);
+            let currentCreatinine = parseFloat(document.getElementById('current_creatinine').value);
+            let creatinineChange48h = parseFloat(document.getElementById('creatinine_change_48h').value);
+            let weight = parseFloat(document.getElementById('weight').value);
+            let urineOutput = parseFloat(document.getElementById('urine_output').value);
+            let duration = parseFloat(document.getElementById('duration').value);
+            
+            let creatinineIncreaseRatio = currentCreatinine / baselineCreatinine;
+            let urineOutputPerKg = urineOutput / (weight * duration);
+            let result = "";
+
+            if (creatinineIncreaseRatio >= 3.0 || currentCreatinine >= 4.0 || urineOutputPerKg < 0.3 && duration >= 24 || urineOutput < 50 && duration >= 12) {
+                result = "Evre 3: Ciddi Böbrek Hasarı. Yoğun bakım desteği ve renal replasman tedavisi değerlendirilmelidir.";
+            } else if (creatinineIncreaseRatio >= 2.0 || urineOutputPerKg < 0.5 && duration >= 12) {
+                result = "Evre 2: Orta Derecede Böbrek Hasarı. Yakın takip ve sıvı dengesi sağlanmalıdır.";
+            } else if (creatinineIncreaseRatio >= 1.5 || creatinineChange48h >= 0.3 || urineOutputPerKg < 0.5 && duration >= 6) {
+                result = "Evre 1: Hafif Böbrek Hasarı. Hastanın hidrasyon durumu ve risk faktörleri değerlendirilmelidir.";
+            } else {
+                result = "Normal Böbrek Fonksiyonu. Takip önerilir.";
+            }
+
+            document.getElementById('result').innerText = result;
+        }
+    </script>
+</body>
+</html>
